@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+var typedjs = require('../');
+var file = process.argv.pop();
+typedjs.runTests(file);
