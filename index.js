@@ -1,7 +1,8 @@
 var fs = require('fs');
+var path = require('path');
 var vm = require('vm');
 
-var TypedJS = fs.readFileSync('packages/TypedJS/typed.js', 'utf-8');
+var TypedJS = fs.readFileSync(path.join(__dirname, 'packages', 'TypedJS', 'typed.js'), 'utf-8');
 var Parser = require('./packages/TypedJS/typedjs_parser.js');
 
 function callTypedJS(method, context, args) {
