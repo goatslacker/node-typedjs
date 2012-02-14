@@ -58,7 +58,9 @@ var api = {
 
   rmAllTests: function () {
     test_cases = [];
-  }
+  },
+
+  parser: Parser
 };
 
 module.exports = api;
