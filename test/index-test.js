@@ -10,6 +10,10 @@ var mock = {
     fn: function concat(a, b) {
       return a + b;
     }
+  },
+  add: {
+    signature: 'add :: Number -> Number -> Number',
+    fn: 'function add(a, b) { return a + b }'
   }
 };
 
@@ -33,8 +37,20 @@ vows.describe('typedjs').addBatch({
       return typedjs.run();
     },
 
-    'should parse the fail, run it and return false': function (result) {
+    'should parse the file, run it and return false': function (result) {
       assert.isFalse(result);
+    }
+  },
+
+  'when parsing code as a string': {
+    topic: function () {
+      var typedjs = new TypedJS();
+      typedjs.string('//+ ' + mock.add.signature + '\n' + mock.add.fn);
+      return typedjs.run();
+    },
+
+    'should parse and succeed': function (result) {
+      assert.isTrue(result);
     }
   }
 }).export(module);
