@@ -19,7 +19,9 @@
   "scripts": {
     "test": "koala-t"
   },
-  "dependencies": {},
+  "dependencies": {
+    "esprima": "0.9.7"
+  },
   "devDependencies": {
     "vows": "latest",
     "koala-t": "latest"

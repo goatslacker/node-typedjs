@@ -1,5 +1,4 @@
-
-//+ add_all :: [Number] -> Number 
+//+ add_all :: [Number] -> Number
 
 function add_all(num_arr){
   var count = num_arr[0]; // Error, could be nil
@@ -13,7 +12,7 @@ function add_all(num_arr){
 
 function my_prop(obj){
   if(obj.valid === true){
-    return "true"; // Error, we are 
+    return "true"; // Error, we are
   }                // returning a string here
   else{
     return obj.valid;
@@ -25,15 +24,17 @@ function fullname(obj){
   return obj.first + " " + obj.last;
 }
 
-//+ join_char :: String -> String -> String
-function join_char(c1,c2){
-  return c1;
-}
+(function () {
+  //+ join_char :: String -> String -> String
+  function join_char(c1,c2){
+    return c1;
+  }
 
-//+ test_obj :: {name:String, email:String} -> {name:String, email:String}
-function test_obj(o){
-  return o;
-}
+  //+ test_obj :: {name:String, email:String} -> {name:String, email:String}
+  function test_obj(o){
+    return o;
+  }
+}());
 
 //+ test_or :: {name:String, email:String} -> {name:String, email:String} | Boolean
 function test_or(o){
@@ -46,9 +47,9 @@ function test_or(o){
 };
 
 //+ test_arr :: String | Number -> String -> [String | Number]
-function test_arr(s1,s2){
+var test_arr = function (s1, s2) {
   return [s1,s2];
-}
+};
 
 MyObj = {
   //+ MyObj.test_fun :: Number -> Number -> Number

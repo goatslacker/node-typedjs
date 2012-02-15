@@ -22,27 +22,22 @@ Globally to check all your projects
 
 ### Adding single tests and running them
 
-    var typedjs = require('typedjs');
-    typedjs.addTest('foo :: Number -> Number', function foo(n) {
+    var TypedJS = require('typedjs');
+    var typedjs = new TypedJS();
+    typedjs.add('foo :: Number -> Number', function foo(n) {
       return n;
     });
-    typedjs.runTests(); // will output to console.log
-
-You can also use a callback if you prefer
-
-    typedjs.runTests(function (data) {
-      // the data that would've been passed to console.log
-      // is sent here instead.
-    });
+    var result = typedjs.run(); // returns Boolean
 
 ### Running against a file
 
-    var typedjs = require('typedjs');
+    var TypedJS = require('typedjs');
+    var typedjs = new TypedJS();
     var path = require('path');
-    typedjs.runTests(path.join(__dirname, 'myFile.js'), function (data) {
-      // this is an optional callback
-      // data will be sent to console.log by default.
-    });
+    typedjs.file(path.join(__dirname, 'myFile.js')); // will load tests from the file
+    typedjs.run();
+
+    console.log(typedjs.data); // holds data of which functions failed and which passed.
 
 ### Comes with an executable
 

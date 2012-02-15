@@ -1,66 +1,111 @@
+/*global typedjs_parser: true */
+
+var typedjs = require('./packages/TypedJS/typed.js');
+typedjs_parser = require('./packages/TypedJS/typedjs_parser.js');
+var esprima = require('esprima');
 var fs = require('fs');
-var path = require('path');
 var vm = require('vm');
 
-var TypedJS = fs.readFileSync(path.join(__dirname, 'packages', 'TypedJS', 'typed.js'), 'utf-8');
-var Parser = require('./packages/TypedJS/typedjs_parser.js');
 
-function callTypedJS(method, context, args) {
-  context.typedjs_parser = Parser;
-  context.console = context.console || console;
-  context.window = context.window || {};
+function traverse(object, visitor, master) {
+  var key, child, parent, path;
 
-  vm.runInNewContext(TypedJS, context);
+  parent = (typeof master === 'undefined') ? [] : master;
 
-  return context.TypedJS[method].apply(context.TypedJS, args);
+  if (visitor.call(null, object, parent) === false) {
+    return;
+  }
+
+  Object.keys(object).forEach(function (key) {
+    child = object[key];
+    path = [object];
+    path.push(parent);
+    if (typeof child === 'object' && child !== null) {
+      traverse(child, visitor, path);
+    }
+  });
 }
 
-function parseFile(fileName, context) {
-  context = context || {};
-  context.window = {};
+function parse(filepath) {
+  var code = fs.readFileSync(filepath).toString();
+  var ast = esprima.parse(code, { comment: true, loc: true, range: true });
 
-  var data = fs.readFileSync(fileName, 'utf-8');
-
-  vm.runInNewContext(data, context.window);
-  callTypedJS('run_tests_on_string', context, [data]);
+  return {
+    ast: ast,
+    code: code
+  };
 }
 
-var test_cases = [];
+function parseSignatures(comments) {
+  var signatures = {};
 
-var api = {
-  addTest: function (signature, func) {
-    var test = callTypedJS('addTest', {}, [signature, func]);
-    test_cases.push(test);
-    return test;
-  },
+  comments.forEach(function (comment) {
+    var signature;
 
-  runTests: function (arg, cb) {
-    var tests = test_cases.slice(0);
-    test_cases = [];
-
-    var reporter = {
-      log: function (data) {
-        cb && cb(data);
+    if (comment.value[0] === '+') {
+      comment = '//' + comment.value;
+      signature = JSON.parse(typedjs_parser.parse(comment));
+      if (signature.func) {
+        signature.value = comment;
+        signatures[signature.func] = signature;
       }
-    };
-
-    if (typeof arg === 'string') {
-      return parseFile(arg, cb && ({ console: reporter }));
     }
+  });
 
-    if (!arg || typeof arg === 'function') {
-      cb = arg;
-      return callTypedJS('go', { console: reporter }, [tests]);
-    }
+  return signatures;
+}
 
-    throw new TypeError('Unexpected argument passed.');
-  },
+function compileFunction(node, signature, code) {
+  var name = signature.func;
+  var params = [];
+  var context = {};
 
-  rmAllTests: function () {
-    test_cases = [];
-  },
+  node.params.forEach(function (param) {
+    params.push(param.name);
+  });
 
-  parser: Parser
+  var wrapped = 'function ' + name + '(' + params.join(',') + ') {\n' + code.slice(node.body.range[0] + 1, node.body.range[1]) + '\n}';
+
+  vm.runInNewContext(wrapped, context);
+  return [signature.value, context[name]];
+}
+
+
+function Tests() {
+  this.tests = [];
+}
+
+Tests.prototype.add = function add(signature, func) {
+  this.tests.push(typedjs.addTest(signature, func));
 };
 
-module.exports = api;
+Tests.prototype.run = function run() {
+  this.data = typedjs.go(this.tests);
+  return (this.data[1].length === 0);
+};
+
+Tests.prototype.file = function file(filepath) {
+  var parsed = parse(filepath);
+  var ast = parsed.ast;
+  var code = parsed.code;
+
+  var signatures = parseSignatures(ast.comments);
+
+  traverse(ast.body, function (node, path) {
+    var f;
+    if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
+      f = path[0].key || node.id;
+      if (f && f.name in signatures) {
+        this.add.apply(this, compileFunction(node, signatures[f.name], code));
+      }
+    }
+  }.bind(this));
+};
+
+Tests.prototype.rm = function rm() {
+  this.tests = [];
+};
+
+Tests.parser = typedjs_parser;
+
+module.exports = Tests;
