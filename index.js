@@ -6,6 +6,7 @@ var esprima = require('esprima');
 var fs = require('fs');
 var vm = require('vm');
 
+typedjs.quiet = true;
 
 function traverse(object, visitor, master) {
   var key, child, parent, path;
