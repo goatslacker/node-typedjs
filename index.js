@@ -82,7 +82,7 @@ Tests.prototype.add = function add(signature, func) {
 
 Tests.prototype.run = function run() {
   this.data = typedjs.go(this.tests);
-  return (this.data[1].length === 0);
+  return (this.data[0].length === 0);
 };
 
 Tests.prototype.file = function file(filepath) {

@@ -2,8 +2,7 @@ var vows = require('vows');
 var assert = require('assert');
 var path = require('path');
 
-var typedjs = require('../');
-
+var TypedJS = require('../');
 
 var mock = {
   concat: {
@@ -14,39 +13,28 @@ var mock = {
   }
 };
 
-function reply(cb) {
-  var count = 0;
-  return function () {
-    if (count > 0) {
-      return false;
-    }
-    var args = Array.prototype.slice.call(arguments, 0);
-    args.unshift(null);
-    cb.apply(cb, args);
-    count += 1;
-  };
-}
-
-
 vows.describe('typedjs').addBatch({
   'when adding a test case and running it': {
     topic: function () {
-      typedjs.addTest(mock.concat.signature, mock.concat.fn);
-      typedjs.runTests(reply(this.callback));
+      var typedjs = new TypedJS();
+      typedjs.add(mock.concat.signature, mock.concat.fn);
+      return typedjs.run();
     },
 
-    'should run all test cases and not fail': function (result) {
-      assert.isString(result);
+    'should run the test case and return true': function (result) {
+      assert.isTrue(result);
     }
   },
 
   'when parsing a file and running it': {
     topic: function () {
-      typedjs.runTests(path.join(__dirname, '..', 'examples', 'test.js'), reply(this.callback));
+      var typedjs = new TypedJS();
+      typedjs.file(path.join(__dirname, '..', 'examples', 'test.js'));
+      return typedjs.run();
     },
 
-    'should receive the stream of events': function (results) {
-      assert.isString(results);
+    'should parse the fail, run it and return false': function (result) {
+      assert.isFalse(result);
     }
   }
 }).export(module);
