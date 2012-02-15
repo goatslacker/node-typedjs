@@ -27,8 +27,7 @@ function traverse(object, visitor, master) {
   });
 }
 
-function parse(filepath) {
-  var code = fs.readFileSync(filepath).toString();
+function parse(code) {
   var ast = esprima.parse(code, { comment: true, loc: true, range: true });
 
   return {
@@ -71,6 +70,20 @@ function compileFunction(node, signature, code) {
   return [signature.value, context[name]];
 }
 
+function walkAST(instance, ast, code) {
+  var signatures = parseSignatures(ast.comments);
+
+  traverse(ast.body, function (node, path) {
+    var f;
+    if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
+      f = path[0].key || node.id;
+      if (f && f.name in signatures) {
+        instance.add.apply(instance, compileFunction(node, signatures[f.name], code));
+      }
+    }
+  });
+}
+
 
 function Tests() {
   this.tests = [];
@@ -85,22 +98,17 @@ Tests.prototype.run = function run() {
   return (this.data[0].length === 0);
 };
 
+Tests.prototype.string = function string(code) {
+  var parsed = parse(code);
+
+  walkAST(this, parsed.ast, code);
+};
+
 Tests.prototype.file = function file(filepath) {
-  var parsed = parse(filepath);
-  var ast = parsed.ast;
-  var code = parsed.code;
+  var code = fs.readFileSync(filepath).toString();
+  var parsed = parse(code);
 
-  var signatures = parseSignatures(ast.comments);
-
-  traverse(ast.body, function (node, path) {
-    var f;
-    if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
-      f = path[0].key || node.id;
-      if (f && f.name in signatures) {
-        this.add.apply(this, compileFunction(node, signatures[f.name], code));
-      }
-    }
-  }.bind(this));
+  walkAST(this, parsed.ast, code);
 };
 
 Tests.prototype.rm = function rm() {
