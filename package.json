@@ -10,9 +10,6 @@
     "url": "git://github.com/goatslacker/node-typedjs.git"
   },
   "main": "index.js",
-  "engines": {
-    "node": "~0.6.9"
-  },
   "bin": {
     "typedjs": "./bin/typedjs"
   },
