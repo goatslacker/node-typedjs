@@ -2,7 +2,7 @@
   "author": "Josh Perez <josh@goatslacker.com> (http://www.goatslacker.com)",
   "name": "typedjs",
   "description": "Lightweight program specifications for testing JavaScript",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "homepage": "http://typedjs.com/",
   "license": "MIT",
   "repository": {
@@ -23,5 +23,8 @@
     "vows": "latest",
     "koala-t": "latest"
   },
-  "optionalDependencies": {}
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
 }
