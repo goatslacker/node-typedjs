@@ -42,7 +42,7 @@ var Syntax = {
     VariableDeclarator: 'VariableDeclarator',
     WhileStatement: 'WhileStatement',
     WithStatement: 'WithStatement'
-};
+  };
 
 function parseSignatures(comments) {
   var signatures = {};
@@ -125,79 +125,79 @@ function instrument(instance, code) {
 
 
   function findScope(range) {
-      var i, fn;
-      i = functionList.length -1;
-      while (i > 0) {
-          fn = functionList[i];
-          if (range < fn.end) {
-              return fn;
-          }
-          i -= 1;
+    var i, fn;
+    i = functionList.length - 1;
+    while (i > 0) {
+      fn = functionList[i];
+      if (range < fn.end) {
+        return fn;
       }
+      i -= 1;
+    }
   }
 
   traverse(tree, function (node, path) {
-      var parent, ret;
-      if (node.type === 'FunctionDeclaration') {
+    var parent, ret;
+    if (node.type === 'FunctionDeclaration') {
+      functionList.push({
+        name: node.id.name,
+        range: node.range,
+        blockStart: node.body.range[0],
+        end: node.body.range[1]
+      });
+    } else if (node.type === Syntax.ReturnStatement) {
+      var obj = findScope(node.range[1]);
+      functionList.push({
+        name: 'return',
+        fn: obj && obj.name,
+        range: node.range
+      });
+    } else if (node.type === Syntax.FunctionExpression) {
+      parent = path[0];
+      if (parent.type === Syntax.AssignmentExpression) {
+        if (typeof parent.left.range !== 'undefined') {
           functionList.push({
-              name: node.id.name,
+            name: code.slice(parent.left.range[0],
+                                parent.left.range[1] + 1),
+            range: node.range,
+            blockStart: node.body.range[0],
+            end: node.body.range[1]
+          });
+        }
+      } else if (parent.type === Syntax.VariableDeclarator) {
+        functionList.push({
+          name: parent.id.name,
+          range: node.range,
+          blockStart: node.body.range[0],
+          end: node.body.range[1]
+        });
+      } else if (parent.type === Syntax.CallExpression) {
+        functionList.push({
+          name: parent.id ? parent.id.name : '[Anonymous]',
+          range: node.range,
+          blockStart: node.body.range[0],
+          end: node.body.range[1]
+        });
+      } else if (typeof parent.length === 'number') {
+        functionList.push({
+          name: parent.id ? parent.id.name : '[Anonymous]',
+          range: node.range,
+          blockStart: node.body.range[0],
+          end: node.body.range[1]
+        });
+      } else if (typeof parent.key !== 'undefined') {
+        if (parent.key.type === 'Identifier') {
+          if (parent.value === node && parent.key.name) {
+            functionList.push({
+              name: parent.key.name,
               range: node.range,
               blockStart: node.body.range[0],
               end: node.body.range[1]
-          });
-      } else if (node.type === Syntax.ReturnStatement) {
-          var obj = findScope(node.range[1]);
-          functionList.push({
-              name: 'return',
-              fn: obj && obj.name,
-              range: node.range
-          });
-      } else if (node.type === Syntax.FunctionExpression) {
-          parent = path[0];
-          if (parent.type === Syntax.AssignmentExpression) {
-              if (typeof parent.left.range !== 'undefined') {
-                  functionList.push({
-                      name: code.slice(parent.left.range[0],
-                                parent.left.range[1] + 1),
-                      range: node.range,
-                      blockStart: node.body.range[0],
-                      end: node.body.range[1]
-                  });
-              }
-          } else if (parent.type === Syntax.VariableDeclarator) {
-              functionList.push({
-                  name: parent.id.name,
-                  range: node.range,
-                  blockStart: node.body.range[0],
-                  end: node.body.range[1]
-              });
-          } else if (parent.type === Syntax.CallExpression) {
-              functionList.push({
-                  name: parent.id ? parent.id.name : '[Anonymous]',
-                  range: node.range,
-                  blockStart: node.body.range[0],
-                  end: node.body.range[1]
-              });
-          } else if (typeof parent.length === 'number') {
-              functionList.push({
-                  name: parent.id ? parent.id.name : '[Anonymous]',
-                  range: node.range,
-                  blockStart: node.body.range[0],
-                  end: node.body.range[1]
-              });
-          } else if (typeof parent.key !== 'undefined') {
-              if (parent.key.type === 'Identifier') {
-                  if (parent.value === node && parent.key.name) {
-                      functionList.push({
-                          name: parent.key.name,
-                          range: node.range,
-                          blockStart: node.body.range[0],
-                          end: node.body.range[1]
-                      });
-                  }
-              }
+            });
           }
+        }
       }
+    }
   });
 
   // Insert the instrumentation code from the last entry.
@@ -205,28 +205,27 @@ function instrument(instance, code) {
   // (it won't shift due to some new inserting string before the range).
   for (i = functionList.length - 1; i >= 0; i -= 1) {
 
-      if (functionList[i].name === 'return') {
-          signature = ' ' + traceName + 'Return(';
-          pos = functionList[i].range[0] + 6;
-          var args;
-          if (!!code.slice(pos,
-              functionList[i].range[1]).trim()) {
-              args = code.slice(pos, functionList[i].range[1]);
-          } else {
-              args = 'undefined';
-          }
-          code = code.slice(0, pos) + signature +
+    if (functionList[i].name === 'return') {
+      signature = ' ' + traceName + 'Return(';
+      pos = functionList[i].range[0] + 6;
+      var args;
+      if (!!code.slice(pos, functionList[i].range[1]).trim()) {
+        args = code.slice(pos, functionList[i].range[1]);
+      } else {
+        args = 'undefined';
+      }
+      code = code.slice(0, pos) + signature +
               '"' + functionList[i].fn + '", ' +
               args + ')' +
               code.slice(functionList[i].range[1], code.length);
-      } else {
-          signature = traceName + 'Args(\'' + functionList[i].name + '\', ' +
+    } else {
+      signature = traceName + 'Args(\'' + functionList[i].name + '\', ' +
             '[' + functionList[i].range[0] + ', ' +
             functionList[i].range[1] + '], arguments);';
 
-          pos = functionList[i].blockStart + 1;
-          code = code.slice(0, pos) + '\n' + signature + code.slice(pos, code.length);
-      }
+      pos = functionList[i].blockStart + 1;
+      code = code.slice(0, pos) + '\n' + signature + code.slice(pos, code.length);
+    }
   }
 
   return code;
