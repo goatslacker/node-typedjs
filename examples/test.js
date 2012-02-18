@@ -63,3 +63,15 @@ MyObj = {
 function add_tos(n1,n2){
   return (n1 + n2) + "";
 }
+
+function bar(a, b) {
+  // THIS BREAKS PARSER
+//  function yes() { return; };
+
+  // functions taht don't return break parser
+  function broken() { }
+
+  return 'what';
+}
+
+fullname({ first: 'Josh', last: 'Perez' });

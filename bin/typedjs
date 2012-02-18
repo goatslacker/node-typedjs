@@ -1,11 +1,4 @@
 #!/usr/bin/env node
 var TypedJS = require('../');
 var typedjs = new TypedJS();
-typedjs.file(process.argv.pop());
-var success = typedjs.run();
-if (success) {
-  console.log('Success.');
-} else {
-  console.log('Failed.');
-}
-process.exit(success ? 0 : 1);
+typedjs.trace(process.argv.pop());
