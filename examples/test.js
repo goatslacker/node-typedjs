@@ -66,7 +66,7 @@ function add_tos(n1,n2){
 
 function bar(a, b) {
   // THIS BREAKS PARSER
-//  function yes() { return; };
+  function yes() { return; };
 
   // functions taht don't return break parser
   function broken() { }

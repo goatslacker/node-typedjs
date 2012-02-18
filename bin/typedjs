@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 var TypedJS = require('../');
 var typedjs = new TypedJS();
-typedjs.trace(process.argv.pop());
+typedjs.file(process.argv.pop());
