@@ -1,48 +1,6 @@
 /*global typedjs_parser */
 var esprima = require('esprima');
-var vm = require('vm');
-
-var Syntax = {
-    AssignmentExpression: 'AssignmentExpression',
-    ArrayExpression: 'ArrayExpression',
-    BlockStatement: 'BlockStatement',
-    BinaryExpression: 'BinaryExpression',
-    BreakStatement: 'BreakStatement',
-    CallExpression: 'CallExpression',
-    CatchClause: 'CatchClause',
-    ConditionalExpression: 'ConditionalExpression',
-    ContinueStatement: 'ContinueStatement',
-    DoWhileStatement: 'DoWhileStatement',
-    DebuggerStatement: 'DebuggerStatement',
-    EmptyStatement: 'EmptyStatement',
-    ExpressionStatement: 'ExpressionStatement',
-    ForStatement: 'ForStatement',
-    ForInStatement: 'ForInStatement',
-    FunctionDeclaration: 'FunctionDeclaration',
-    FunctionExpression: 'FunctionExpression',
-    Identifier: 'Identifier',
-    IfStatement: 'IfStatement',
-    Literal: 'Literal',
-    LabeledStatement: 'LabeledStatement',
-    LogicalExpression: 'LogicalExpression',
-    MemberExpression: 'MemberExpression',
-    NewExpression: 'NewExpression',
-    ObjectExpression: 'ObjectExpression',
-    Program: 'Program',
-    ReturnStatement: 'ReturnStatement',
-    SequenceExpression: 'SequenceExpression',
-    SwitchStatement: 'SwitchStatement',
-    SwitchCase: 'SwitchCase',
-    ThisExpression: 'ThisExpression',
-    ThrowStatement: 'ThrowStatement',
-    TryStatement: 'TryStatement',
-    UnaryExpression: 'UnaryExpression',
-    UpdateExpression: 'UpdateExpression',
-    VariableDeclaration: 'VariableDeclaration',
-    VariableDeclarator: 'VariableDeclarator',
-    WhileStatement: 'WhileStatement',
-    WithStatement: 'WithStatement'
-  };
+//var vm = require('vm');
 
 function parseSignatures(comments) {
   var signatures = {};
@@ -145,16 +103,16 @@ function instrument(instance, code) {
         blockStart: node.body.range[0],
         end: node.body.range[1]
       });
-    } else if (node.type === Syntax.ReturnStatement) {
+    } else if (node.type === 'ReturnStatement') {
       var obj = findScope(node.range[1]);
       functionList.push({
         name: 'return',
         fn: obj && obj.name,
         range: node.range
       });
-    } else if (node.type === Syntax.FunctionExpression) {
+    } else if (node.type === 'FunctionExpression') {
       parent = path[0];
-      if (parent.type === Syntax.AssignmentExpression) {
+      if (parent.type === 'AssignmentExpression') {
         if (typeof parent.left.range !== 'undefined') {
           functionList.push({
             name: code.slice(parent.left.range[0],
@@ -164,14 +122,14 @@ function instrument(instance, code) {
             end: node.body.range[1]
           });
         }
-      } else if (parent.type === Syntax.VariableDeclarator) {
+      } else if (parent.type === 'VariableDeclarator') {
         functionList.push({
           name: parent.id.name,
           range: node.range,
           blockStart: node.body.range[0],
           end: node.body.range[1]
         });
-      } else if (parent.type === Syntax.CallExpression) {
+      } else if (parent.type === 'CallExpression') {
         functionList.push({
           name: parent.id ? parent.id.name : '[Anonymous]',
           range: node.range,
