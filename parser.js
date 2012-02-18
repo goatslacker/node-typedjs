@@ -117,7 +117,7 @@ function instrument(instance, code) {
   var pos = 0;
   var i = 0;
 
-  var traceName = 'enforceType';
+  var traceName = '_$TypedJS_';
 
   var tree = parse(code).ast;
 
@@ -206,7 +206,7 @@ function instrument(instance, code) {
   for (i = functionList.length - 1; i >= 0; i -= 1) {
 
       if (functionList[i].name === 'return') {
-          signature = ' ' + traceName + '_return(';
+          signature = ' ' + traceName + 'Return(';
           pos = functionList[i].range[0] + 6;
           var args;
           if (!!code.slice(pos,
@@ -220,7 +220,7 @@ function instrument(instance, code) {
               args + ')' +
               code.slice(functionList[i].range[1], code.length);
       } else {
-          signature = traceName + '(\'' + functionList[i].name + '\', ' +
+          signature = traceName + 'Args(\'' + functionList[i].name + '\', ' +
             '[' + functionList[i].range[0] + ', ' +
             functionList[i].range[1] + '], arguments);';
 
