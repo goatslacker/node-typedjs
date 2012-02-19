@@ -32,7 +32,7 @@ Tests.prototype.file = function file(filepath) {
   var code = fs.readFileSync(filepath).toString();
 
   var instrumented = instrument(this, code);
-  console.log(instrumented);
+  return instrumented;
 };
 
 Tests.prototype.rm = function rm() {

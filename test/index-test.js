@@ -33,24 +33,11 @@ vows.describe('typedjs').addBatch({
   'when parsing a file and running it': {
     topic: function () {
       var typedjs = new TypedJS();
-      typedjs.file(path.join(__dirname, '..', 'examples', 'test.js'));
-      return typedjs.run();
+      return typedjs.file(path.join(__dirname, '..', 'examples', 'test.js'));
     },
 
-    'should parse the file, run it and return false': function (result) {
-      assert.isFalse(result);
-    }
-  },
-
-  'when parsing code as a string': {
-    topic: function () {
-      var typedjs = new TypedJS();
-      typedjs.string('//+ ' + mock.add.signature + '\n' + mock.add.fn);
-      return typedjs.run();
-    },
-
-    'should parse and succeed': function (result) {
-      assert.isTrue(result);
+    'should parse the file, run it and return instrumented code': function (result) {
+      assert.isString(result.code);
     }
   }
 }).export(module);
