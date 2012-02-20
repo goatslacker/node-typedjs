@@ -73,5 +73,3 @@ function bar(a, b) {
 
   return 'what';
 }
-
-fullname({ first: 'Josh', last: 'Perez' });
