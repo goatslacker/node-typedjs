@@ -4,5 +4,5 @@ node_js:
   - 0.6
 before_install:
   git submodule init && git submodule --quiet update
-after_install:
+before_script:
   cake build
