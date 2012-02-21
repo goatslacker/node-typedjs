@@ -1,31 +1,39 @@
 /*global typedjs_parser: true */
 
 var typedjs = require('./packages/TypedJS/typed.js');
-typedjs_parser = require('./packages/TypedJS/typedjs_parser.js');
 
 var fs = require('fs');
 var vm = require('vm');
 
 var instrument = require('./lib/instrument');
-var sandbox = require('./lib/contracts');
+var createSandbox = require('./lib/contracts');
 
 typedjs.quiet = true;
+
+
+function mixInto(base, obj) {
+  Object.keys(obj).forEach(function (key) {
+    base[key] = obj[key];
+  });
+
+  return base;
+}
 
 
 function contracts_string(code, box) {
   box = box || {};
 
   var instrumented = instrument(code);
-  sandbox.signatures = instrumented.signatures;
+  var context = createSandbox(instrumented.signatures);
+
   instrumented = instrumented.code;
 
   var script = vm.createScript(instrumented, 'code');
-  var context = vm.createContext();
-  context._$TypedJS = sandbox;
-  Object.keys(box).forEach(function (key) {
-    context[key] = box[key];
-  });
+
+  context = mixInto(context, box);
+
   script.runInContext(context);
+
   return context;
 //  return { code: instrumented.code + ';' + tests, sandbox: sandbox };
 }
