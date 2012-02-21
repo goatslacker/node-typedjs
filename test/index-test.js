@@ -2,42 +2,41 @@ var vows = require('vows');
 var assert = require('assert');
 var path = require('path');
 
-var TypedJS = require('../');
+var typedjs = require('../lib/index');
 
-var mock = {
-  concat: {
-    signature: 'concat :: String -> String -> String',
-    fn: function concat(a, b) {
-      return a + b;
-    }
-  },
-  add: {
-    signature: 'add :: Number -> Number -> Number',
-    fn: 'function add(a, b) { return a + b }'
-  }
-};
+var mock = require('./mock');
+var macros = require('./macros');
+
 
 vows.describe('typedjs').addBatch({
-  'when adding a test case and running it': {
+  'when adding mock.concat and running it': {
     topic: function () {
-      var typedjs = new TypedJS();
-      typedjs.add(mock.concat.signature, mock.concat.fn);
-      return typedjs.run();
+      var tests = typedjs.single();
+      tests.add(mock.concat.signature, mock.concat.fn);
+      return tests.run();
     },
 
-    'should run the test case and return true': function (result) {
-      assert.isTrue(result);
-    }
+    'should pass': macros.truth
   },
 
-  'when parsing a file and running it': {
+//  'when passing in a string': {
+//    topic: function () {
+//      var tests = typedjs.single();
+//      tests.string(mock.fullname);
+//      return tests.run();
+//    },
+
+//    'should return true': macros.truth
+//  }
+
+  'when extracting functions from mock.fullname': {
     topic: function () {
-      var typedjs = new TypedJS();
-      return typedjs.file(path.join(__dirname, '..', 'examples', 'test.js'));
+      var tests = typedjs.single();
+      typedjs.extract(mock.fullname, tests);
+      return tests.run();
     },
 
-    'should parse the file, run it and return instrumented code': function (result) {
-      assert.isString(result.code);
-    }
+    'should pass': macros.truth
   }
+
 }).export(module);
