@@ -23,4 +23,8 @@ class Tests
     @tests = []
 
 
-module.exports = Tests
+cloneObject = ->
+  new Tests
+
+
+module.exports = cloneObject
