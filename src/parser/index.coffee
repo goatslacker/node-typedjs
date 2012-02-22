@@ -1,5 +1,5 @@
 esprima = require 'esprima'
-parseSignatures = require './parseSignatures'
+parseSignatures = require './signatures'
 
 traverse = (object, visitor, master) ->
 
@@ -16,14 +16,15 @@ traverse = (object, visitor, master) ->
 
 
 class Parser
-  constructor: (code) ->
-    @tree = esprima.parse code, { comment: true, loc: true, range: true }
+  constructor: (@code) ->
+    @tree = esprima.parse @code, { comment: true, loc: true, range: true }
 
   getSignatures: ->
     parseSignatures(@tree.comments)
 
   getFunctions: ->
     list = []
+    code = @code
 
     findScope = (range) ->
       i = list.length - 1

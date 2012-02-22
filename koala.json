@@ -1,4 +1,0 @@
-{
-  "test": "test/koala.js",
-  "lint": "src"
-}

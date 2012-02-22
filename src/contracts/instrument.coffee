@@ -1,4 +1,4 @@
-Parser = require '../parser'
+Parser = require '../parser/'
 
 instrument = (code) ->
 
@@ -22,8 +22,8 @@ instrument = (code) ->
         args = 'undefined'
         posEnd = fn.range[1]
       else
-        args = code.slice fn.arg[0], fn.arg[1]
-        posEnd = fn.arg[1]
+        args = code.slice fn.arg[0], fn.arg[1] + 1
+        posEnd = fn.arg[1] + 1
 
       signature = "_$TypedJS.ret('#{fn.fn}', #{args})"
       code = "#{code.slice(0, posStart)} #{signature} #{code.slice(posEnd, code.length)}"

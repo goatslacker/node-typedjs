@@ -4,7 +4,6 @@ vm = require 'vm'
 instrument = require './instrument'
 createSandbox = require './createSandbox'
 
-#typedjs.quiet = true
 
 mixInto = (base = {}, obj = {}) ->
   Object.keys(obj).forEach((key) ->
@@ -14,7 +13,7 @@ mixInto = (base = {}, obj = {}) ->
   base
 
 
-contracts = (code, sandbox) ->
+getContext = (code, sandbox) ->
   { instrumentedCode, signatures } = instrument code
   context = createSandbox signatures
 
@@ -24,8 +23,18 @@ contracts = (code, sandbox) ->
 
   script.runInContext context
 
-# return { code: instrumented.code + ';' + tests, sandbox: sandbox };
   context
 
 
-module.exports = contracts
+enforce = (code, runner, sandbox = {}) ->
+  context = getContext code, sandbox
+
+  switch typeof runner
+    when 'string' then vm.runInNewContext runner, context
+    when 'function' then vm.runInNewContext "(#{runner.toString()}());", context
+    else throw new TypeError 'Runner must be either a Function or a String'
+
+  true
+
+
+module.exports = enforce

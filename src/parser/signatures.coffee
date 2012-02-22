@@ -1,4 +1,4 @@
-typedjs_parser = require '../packages/TypedJS/typedjs_parser.js'
+typedjs_parser = require '../../packages/TypedJS/typedjs_parser.js'
 
 parseSignatures = (comments) ->
   signatures = {}

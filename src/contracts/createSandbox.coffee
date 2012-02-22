@@ -1,6 +1,7 @@
 vm = require 'vm'
 typedjs_parser = '../../packages/TypedJS/typedjs_parser.js'
 
+# TODO capture data of what was enforced?
 _$TypedJS = (
   typedjs: require '../../packages/TypedJS/typed.js'
   util: require 'util'

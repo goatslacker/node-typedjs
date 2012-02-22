@@ -2,27 +2,26 @@
   "author": "Josh Perez <josh@goatslacker.com> (http://www.goatslacker.com)",
   "name": "typedjs",
   "description": "Lightweight program specifications for testing JavaScript",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "homepage": "http://typedjs.com/",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/goatslacker/node-typedjs.git"
   },
-  "main": "index.js",
+  "main": "./lib/index.js",
   "bin": {
     "typedjs": "./bin/typedjs"
   },
   "scripts": {
-    "test": "koala-t"
+    "test": "cake test"
   },
   "dependencies": {
     "esprima": "0.9.7"
   },
   "devDependencies": {
     "coffee-script": "latest",
-    "vows": "latest",
-    "koala-t": "latest"
+    "vows": "latest"
   },
   "optionalDependencies": {},
   "engines": {

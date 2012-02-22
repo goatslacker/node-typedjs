@@ -23,7 +23,7 @@ build = (watch, callback) ->
   coffee.stderr.on 'data', (data) -> log data.toString(), red
   coffee.on 'exit', (status) -> callback?() if status is 0
 
-spec = (callback) ->
+test = (callback) ->
   options = ['--spec']
   spec = spawn 'vows', options
   spec.stdout.on 'data', (data) -> print data.toString()
@@ -43,5 +43,5 @@ task 'docs', 'Generate annotated source code with Docco', ->
 task 'build', ->
   build -> log ":)", green
 
-task 'spec', 'Run Vows', ->
-  build -> spec -> log ":)", green
+task 'test', 'Run Vows', ->
+  build -> test -> log ":)", green
