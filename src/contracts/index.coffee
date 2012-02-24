@@ -4,6 +4,8 @@ vm = require 'vm'
 instrument = require './instrument'
 createSandbox = require './createSandbox'
 
+errMessage = 'Runner must be either a Function or a String.'
+
 
 mixInto = (base = {}, obj = {}) ->
   Object.keys(obj).forEach((key) ->
@@ -15,10 +17,12 @@ mixInto = (base = {}, obj = {}) ->
 
 class Contracts
 
-  data: null
+  constructor: (code) ->
+    if code is null
+      throw new ReferenceError "Code is not defined."
 
-  constructor: (code = '') ->
     @code = code
+    @data = null
 
   getContext: (sandbox, signatures) ->
     { @instrumentedCode, @signatures } = instrument @code
@@ -37,15 +41,17 @@ class Contracts
 
     return false if Object.keys(@signatures).length is 0
 
-    switch typeof runner
-      when 'string'
-        vm.runInNewContext runner, context
-      when 'function'
-        runner context, @instrumentedCode
-      else throw new TypeError 'Runner must be either a Function or a String.'
+    try
+      switch typeof runner
+        when 'string'
+          vm.runInNewContext runner, context
+        when 'function'
+          runner context, @instrumentedCode
+        else throw new TypeError errMessage
+    catch err
+      throw err if err.message is errMessage
 
-
-    true
+    @data[0].length is 0
 
 
 cloneObject = (code) ->
