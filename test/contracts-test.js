@@ -58,5 +58,16 @@ vows.describe('Contracts').addBatch({
       }
     }
 
+  },
+
+  'when enforcing a contract on code that fails': {
+    topic: function () {
+      this.tests = typedjs.enforce(code.failing);
+      return this.tests.run('foo(2)');
+    },
+
+    'should return false': macros.failure,
+    'should have 1 failed function in results': macros.resultsFailCount(1),
+    'should have 0 successful functions in results': macros.resultsSuccessCount(0)
   }
 }).export(module);
