@@ -1,65 +1,64 @@
 vm = require 'vm'
 typedjs_parser = '../../packages/TypedJS/typedjs_parser.js'
 
-_$TypedJS = (
+class TypedJS
+  constructor: (signatures = {}) ->
+    @data = [[], []]
+    @signatures = signatures
+
   typedjs: require '../../packages/TypedJS/typed.js'
   util: require 'util'
 
-  data: [[], []]
-
-  signatures: {}
-
   fail: (name) ->
-    fail = _$TypedJS.data[0]
+    fail = @data[0]
     if fail.indexOf(name) is -1
       fail.push name
 
   success: (name) ->
-    fail = _$TypedJS.data[0]
-    success = _$TypedJS.data[1]
+    fail = @data[0]
+    success = @data[1]
     if fail.indexOf(name) is -1 and success.indexOf(name) is -1
       success.push name
 
   # defines our type checking function
   args: (name, args) ->
-    base = _$TypedJS.signatures[name]
+    base = @signatures[name]
 
     # If the type signature exists
     if base
-      base.args.forEach((arg, index) ->
+      base.args.forEach((arg, index) =>
         # the last one is the Return
         return if index is (base.args.length - 1)
 
         # Check the Type
-        if !_$TypedJS.typedjs.check_type args[index], arg
-          _$TypedJS.fail name
-          throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(arg)} but received #{_$TypedJS.util.inspect(args[index])}"
+        if !@typedjs.check_type args[index], arg
+          @fail name
+          throw new TypeError "#{name} Expected #{@util.inspect(arg)} but received #{@util.inspect(args[index])}"
       )
-      _$TypedJS.success name
+      @success name
 
     base
 
 
   ret: (name, value) ->
-    base = _$TypedJS.signatures[name]
+    base = @signatures[name]
 
     if base
       expected = base.args[base.args.length - 1]
 
       # Check the Type
-      if !_$TypedJS.typedjs.check_type value, expected
-        _$TypedJS.fail name
-        throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(expected)} but received #{_$TypedJS.util.inspect(value)}"
+      if !@typedjs.check_type value, expected
+        @fail name
+        throw new TypeError "#{name} Expected #{@util.inspect(expected)} but received #{@util.inspect(value)}"
 
-      _$TypedJS.success name
+      @success name
 
     #return back to function so program works correctly
     value
-)
 
 
 createSandbox = (signatures) ->
-  _$TypedJS.signatures = signatures
+  _$TypedJS = new TypedJS signatures
 
   context = vm.createContext()
   context._$TypedJS = _$TypedJS
