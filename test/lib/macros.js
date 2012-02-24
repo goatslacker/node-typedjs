@@ -40,6 +40,7 @@ function resultsSuccessCount(n) {
 }
 
 module.exports = {
+  assert: assert,
   success: success,
   failure: failure,
   typedjs: typedjs,

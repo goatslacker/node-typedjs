@@ -9,7 +9,6 @@ var mock = {
     signature: 'add :: Number -> Number -> Number',
     fn: 'function add(a, b) { return a + b }'
   },
-
   fullname: [
     '//+ fullname :: {first:String, last:String} -> String',
     'function fullname(obj) {',

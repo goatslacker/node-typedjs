@@ -1,12 +1,24 @@
 vm = require 'vm'
 typedjs_parser = '../../packages/TypedJS/typedjs_parser.js'
 
-# TODO capture data of what was enforced?
 _$TypedJS = (
   typedjs: require '../../packages/TypedJS/typed.js'
   util: require 'util'
 
+  data: [[], []]
+
   signatures: {}
+
+  fail: (name) ->
+    fail = _$TypedJS.data[0]
+    if fail.indexOf(name) is -1
+      fail.push name
+
+  success: (name) ->
+    fail = _$TypedJS.data[0]
+    success = _$TypedJS.data[1]
+    if fail.indexOf(name) is -1 and success.indexOf(name) is -1
+      success.push name
 
   # defines our type checking function
   args: (name, args) ->
@@ -20,8 +32,10 @@ _$TypedJS = (
 
         # Check the Type
         if !_$TypedJS.typedjs.check_type args[index], arg
+          _$TypedJS.fail name
           throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(arg)} but received #{_$TypedJS.util.inspect(args[index])}"
       )
+      _$TypedJS.success name
 
     base
 
@@ -34,7 +48,10 @@ _$TypedJS = (
 
       # Check the Type
       if !_$TypedJS.typedjs.check_type value, expected
+        _$TypedJS.fail name
         throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(expected)} but received #{_$TypedJS.util.inspect(value)}"
+
+      _$TypedJS.success name
 
     #return back to function so program works correctly
     value

@@ -16,6 +16,7 @@ function files(obj) {
 
 module.exports = files({
   str: 'test',
+  no_sig: 'no_signatures',
   failing: 'failing',
   closures: 'closures'
 });

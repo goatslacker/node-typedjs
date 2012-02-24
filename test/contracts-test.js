@@ -7,10 +7,17 @@ var macros = require('./lib/macros');
 vows.describe('Contracts').addBatch({
 
   'when enforcing a contract': {
+    topic: function () {
+      this.tests = typedjs.enforce(code.str);
+      return this.tests;
+    },
+
+    'code should exist in Object and not be null': macros.code,
+
     'using a function as the runner': {
       topic: function () {
-        return typedjs.enforce(code.str, function tests() {
-          fullname({ first: 'Josh', last: 'Perez' });
+        return this.tests.run(function tests(context) {
+          context.fullname({ first: 'Josh', last: 'Perez' });
         });
       },
 
@@ -19,10 +26,37 @@ vows.describe('Contracts').addBatch({
 
     'using a string as the runner': {
       topic: function () {
-        return typedjs.enforce(code.str, "fullname({ first: 'Josh', last: 'Perez' });");
+        return this.tests.run("fullname({ first: 'Josh', last: 'Perez' });");
       },
 
-      'should pass': macros.success
+      'should pass': macros.success,
+      'should have 0 failed functions in results': macros.resultsFailCount(0),
+      'should have 1 successful function in results': macros.resultsSuccessCount(1)
     }
+  },
+
+  'when enforcing a contract on code with no signatures': {
+    topic: function () {
+      this.tests = typedjs.enforce(code.no_sig);
+      return this.tests;
+    },
+
+    'code should exist in Object and not be null': macros.code,
+
+    'run without adding signatures': {
+      topic: function () {
+        return this.tests.run(function (context) {
+          context.multiply(2, 3);
+        });
+      },
+
+      'should fail because no signatures were found': macros.failure,
+
+      'signatures should be an empty Object': function () {
+        macros.assert.isObject(this.tests.signatures);
+        macros.assert.equal(Object.keys(this.tests.signatures), 0);
+      }
+    }
+
   }
 }).export(module);

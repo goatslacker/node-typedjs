@@ -13,28 +13,43 @@ mixInto = (base = {}, obj = {}) ->
   base
 
 
-getContext = (code, sandbox) ->
-  { instrumentedCode, signatures } = instrument code
-  context = createSandbox signatures
+class Contracts
 
-  script = vm.createScript instrumentedCode
+  data: null
 
-  context = mixInto context, sandbox
+  constructor: (code = '') ->
+    @code = code
 
-  script.runInContext context
+  getContext: (sandbox, signatures) ->
+    { @instrumentedCode, @signatures } = instrument @code
+    context = createSandbox signatures or @signatures
 
-  context
+    script = vm.createScript @instrumentedCode
+    context = mixInto context, sandbox
+    script.runInContext context
+
+    @data = context._$TypedJS.data
+
+    context
+
+  run: (runner, sandbox = {}) ->
+    context = @getContext sandbox
+
+    return false if Object.keys(@signatures).length is 0
+
+    switch typeof runner
+      when 'string'
+        vm.runInNewContext runner, context
+      when 'function'
+        runner context, @instrumentedCode
+      else throw new TypeError 'Runner must be either a Function or a String.'
 
 
-enforce = (code, runner, sandbox = {}) ->
-  context = getContext code, sandbox
-
-  switch typeof runner
-    when 'string' then vm.runInNewContext runner, context
-    when 'function' then vm.runInNewContext "(#{runner.toString()}());", context
-    else throw new TypeError 'Runner must be either a Function or a String'
-
-  true
+    true
 
 
-module.exports = enforce
+cloneObject = (code) ->
+  new Contracts code
+
+
+module.exports = cloneObject
