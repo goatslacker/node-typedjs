@@ -97,6 +97,16 @@ Contracts are created by calling `enforce`
 
 * code - {String} enforce a contract on some code
 
+## Executable
+
+Comes with an executable
+
+    $ typedjs [option] [file1] [file2] [file3]
+
+Options available
+
+* -e | --extract - Tells typedjs to extract functions and run them individually
+
 ## Credits
 
 * TypedJS - [Ethan Fast](http://ethanfast.com/)
