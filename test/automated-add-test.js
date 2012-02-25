@@ -51,8 +51,6 @@ vows.describe('Automated Individual Tests').addBatch({
 
       'and running the tests': {
         topic: function () {
-          console.log(this.tests.tests);
-          console.log(mock.concat_fail.signature);
           return this.tests.run();
         },
 
