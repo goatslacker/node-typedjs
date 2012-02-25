@@ -18,8 +18,7 @@ mixInto = (base = {}, obj = {}) ->
 class Contracts
 
   constructor: (code) ->
-    if code is null
-      throw new ReferenceError "Code is not defined."
+    throw new ReferenceError "Code is not defined." if not code
 
     @code = code
     @data = null

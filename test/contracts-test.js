@@ -14,7 +14,13 @@ vows.describe('Contracts').addBatch({
 
     'code should exist in Object and not be null': macros.code,
 
-    'using a function as the runner': {
+    'and not passing a runner': {
+      'should throw an error': function () {
+        macros.assert.throws(this.tests.run);
+      }
+    },
+
+    'and passing a function as the runner': {
       topic: function () {
         return this.tests.run(function tests(context) {
           context.fullname({ first: 'Josh', last: 'Perez' });
@@ -24,7 +30,7 @@ vows.describe('Contracts').addBatch({
       'should pass': macros.success
     },
 
-    'using a string as the runner': {
+    'and passing a string as the runner': {
       topic: function () {
         return this.tests.run("fullname({ first: 'Josh', last: 'Perez' });");
       },
@@ -69,5 +75,11 @@ vows.describe('Contracts').addBatch({
     'should return false': macros.failure,
     'should have 1 failed function in results': macros.resultsFailCount(1),
     'should have 0 successful functions in results': macros.resultsSuccessCount(0)
+  },
+
+  'when attempting to enforce a contract on no code at all': {
+    'should throw a ReferenceError': function () {
+      macros.assert.throws(typedjs.enforce);
+    }
   }
 }).export(module);
