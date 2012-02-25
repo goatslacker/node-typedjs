@@ -18,6 +18,23 @@ Globally to check all your projects
 
     npm install typedjs -g
 
+## API
+
+### Adding individual tests
+
+You may add individual functions to run the automated tests on.
+
+      var typedjs = require('typedjs');
+
+      var tests = typedjs.createTests();
+
+      tests.addTest('foo :: Number -> Number -> Number', function foo(a, b) {
+        return a + b;
+      });
+
+      tests.run(); // Boolean. true if tests passed, else false.
+      tests.data; // contains information on which functions passed and failed.
+
 ## Credits
 
 * TypedJS - [Ethan Fast](http://ethanfast.com/)
