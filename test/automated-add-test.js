@@ -17,6 +17,7 @@ vows.describe('Automated Individual Tests').addBatch({
 
     'and adding a test': {
       topic: function () {
+        this.tests = typedjs.createTests();
         return this.tests.add(mock.concat.signature, mock.concat.fn);
       },
 
@@ -39,6 +40,26 @@ vows.describe('Automated Individual Tests').addBatch({
 
           'tests should be empty again': macros.testsCount(0)
         }
+      }
+    },
+
+    'and adding a failing test': {
+      topic: function () {
+        this.tests = typedjs.createTests();
+        return this.tests.add(mock.concat_fail.signature, mock.concat_fail.fn);
+      },
+
+      'and running the tests': {
+        topic: function () {
+          console.log(this.tests.tests);
+          console.log(mock.concat_fail.signature);
+          return this.tests.run();
+        },
+
+        'should fail the tests': macros.failure,
+        'should have the test results': macros.testResults,
+        'should have 1 failed function in results': macros.resultsFailCount(1),
+        'should have 0 successful functions in results': macros.resultsSuccessCount(0),
       }
     }
   }

@@ -5,6 +5,12 @@ var mock = {
       return a + b;
     }
   },
+  concat_fail: {
+    signature: 'concat_fail :: Number -> Number -> String',
+    fn: function concat_fail(a, b) {
+      return a + b;
+    }
+  },
   add: {
     signature: 'add :: Number -> Number -> Number',
     fn: 'function add(a, b) { return a + b }'
