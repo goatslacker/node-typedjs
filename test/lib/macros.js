@@ -12,6 +12,10 @@ function typedjs(tests) {
   assert.isObject(tests.typedjs);
 }
 
+function isObject(tests) {
+  assert.isObject(tests);
+}
+
 function code(tests) {
   assert.isNotNull(tests.code);
   assert.isString(tests.code);
@@ -48,5 +52,6 @@ module.exports = {
   testResults: testResults,
   testsCount: testsCount,
   resultsFailCount: resultsFailCount,
-  resultsSuccessCount: resultsSuccessCount
+  resultsSuccessCount: resultsSuccessCount,
+  isObject: isObject
 };

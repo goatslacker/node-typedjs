@@ -14,6 +14,17 @@ vows.describe('Contracts').addBatch({
 
     'code should exist in Object and not be null': macros.code,
 
+    'and retrieving the context of the code': {
+      topic: function () {
+        return this.tests.getContext({ foo: 'Hello World' });
+      },
+
+      'should be an Object and not be null': macros.isObject,
+      'foo should be present': function (cx) {
+        macros.assert.equal(cx.foo, 'Hello World');
+      }
+    },
+
     'and not passing a runner': {
       'should throw an error': function () {
         macros.assert.throws(this.tests.run);
@@ -41,6 +52,31 @@ vows.describe('Contracts').addBatch({
     }
   },
 
+  'when enforcing another contract': {
+    topic: function () {
+      this.tests = typedjs.enforce(code.str);
+      return this.tests;
+    },
+
+    'and adding to the context': {
+      topic: function () {
+        var test;
+
+        this.tests.run('foo();', {
+          foo: function () {
+            test = 12;
+          }
+        });
+
+        return test;
+      },
+
+      'should call our foo function': function (foo) {
+        macros.assert.equal(foo, 12);
+      }
+    }
+  },
+
   'when enforcing a contract on code with no signatures': {
     topic: function () {
       this.tests = typedjs.enforce(code.no_sig);
@@ -49,7 +85,7 @@ vows.describe('Contracts').addBatch({
 
     'code should exist in Object and not be null': macros.code,
 
-    'run without adding signatures': {
+    'and we run without adding signatures': {
       topic: function () {
         return this.tests.run(function (context) {
           context.multiply(2, 3);
@@ -61,6 +97,26 @@ vows.describe('Contracts').addBatch({
       'signatures should be an empty Object': function () {
         macros.assert.isObject(this.tests.signatures);
         macros.assert.equal(Object.keys(this.tests.signatures), 0);
+      },
+
+      'but then we change to code with signatures': {
+        topic: function () {
+          return this.tests.code = code.str;
+        },
+
+        'and run multiple tests': {
+          topic: function () {
+            return this.tests.run(function (context) {
+              context.add_tos(2, 2);
+              context.test_arr(1, 'C');
+              context.fullname(true);
+            });
+          },
+
+          'should fail since we added a failing case': macros.failure,
+          'should have 1 failed functions in results': macros.resultsFailCount(1),
+          'should have 2 successful functions in results': macros.resultsSuccessCount(2)
+        }
       }
     }
 
