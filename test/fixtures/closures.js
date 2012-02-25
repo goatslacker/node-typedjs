@@ -8,6 +8,21 @@
   function test_obj(o) {
     return o;
   }
+
+  function dontTypeCheckMe() {
+    return true;
+  }
+
+  function sideEffects() {
+    var f = dontTypeCheckMe();
+    return f;
+  }
+
+  //+ mispelledfnname :: String -> String -> Number
+  function mispelledfunctionname(a, b, c) {
+    var d = a + b;
+    return Number(d) - c;
+  }
 }());
 
 //+ subtractMe :: Number -> Number -> Number
