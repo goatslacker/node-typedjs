@@ -4,8 +4,9 @@ var code = require('./fixtures');
 var macros = require('./lib/macros');
 
 
-vows.describe('Contracts').addBatch({
+vows.describe('Contracts')
 
+.addBatch({
   'when enforcing a contract': {
     topic: function () {
       this.tests = typedjs.enforce(code.str);
@@ -50,8 +51,10 @@ vows.describe('Contracts').addBatch({
       'should have 0 failed functions in results': macros.resultsFailCount(0),
       'should have 1 successful function in results': macros.resultsSuccessCount(1)
     }
-  },
+  }
+})
 
+.addBatch({
   'when enforcing another contract': {
     topic: function () {
       this.tests = typedjs.enforce(code.str);
@@ -75,8 +78,10 @@ vows.describe('Contracts').addBatch({
         macros.assert.equal(foo, 12);
       }
     }
-  },
+  }
+})
 
+.addBatch({
   'when enforcing a contract on code with no signatures': {
     topic: function () {
       this.tests = typedjs.enforce(code.no_sig);
@@ -119,9 +124,10 @@ vows.describe('Contracts').addBatch({
         }
       }
     }
+  }
+})
 
-  },
-
+.addBatch({
   'when enforcing a contract on code that fails': {
     topic: function () {
       this.tests = typedjs.enforce(code.failing);

@@ -4,7 +4,9 @@ var code = require('./fixtures');
 var macros = require('./lib/macros');
 
 
-vows.describe('Automated tests extracting functions').addBatch({
+vows.describe('Automated tests extracting functions')
+
+.addBatch({
   'when running tests while extracting all functions': {
     topic: function () {
       this.tests = typedjs.createTests(code.closures, true);
@@ -33,8 +35,10 @@ vows.describe('Automated tests extracting functions').addBatch({
         'tests should be empty again': macros.testsCount(0)
       }
     }
-  },
+  }
+})
 
+.addBatch({
   'when extracting functions with side effects': {
     topic: function () {
       this.tests = typedjs.createTests(code.sidefx, true);
