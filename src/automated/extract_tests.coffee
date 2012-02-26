@@ -5,8 +5,7 @@ vm = require 'vm'
 
 class ExtractTests extends AddTests
 
-  compileFunction: (signature, node, code) ->
-    name = signature.func
+  compileFunction: (name, node, code) ->
     args = []
     context = {}
 
@@ -17,7 +16,7 @@ class ExtractTests extends AddTests
 
     vm.runInNewContext wrapped, context
 
-    [signature.value, context[name]]
+    context[name]
 
 
   run: ->
@@ -28,7 +27,8 @@ class ExtractTests extends AddTests
 
     functionList.forEach (fn) =>
       if signatures.hasOwnProperty fn.name
-        @.add.apply @, @compileFunction(signatures[fn.name], fn, @code)
+        signature = signatures[fn.name]
+        @.add signature.value, @compileFunction(signature.func, fn, @code)
 
     super
 
