@@ -28,7 +28,7 @@ var test_arr = function (s1, s2) {
 };
 
 var MyObj = {
-  //+ MyObj.test_fun :: Number -> Number -> Number
+  //+ MyObj.test_fun :: Number, Number -> Number
   test_fun: function (num1, num2) {
     return num1 + num2;
   }
