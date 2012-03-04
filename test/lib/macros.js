@@ -22,7 +22,8 @@ function code(tests) {
 }
 
 function testResults() {
-  assert.isTrue(Array.isArray(this.tests.data));
+  assert.equal(typeof this.tests.data, 'object');
+  assert.equal(Object.keys(this.tests.data).length, 2);
 }
 
 function testsCount(n) {
@@ -33,13 +34,13 @@ function testsCount(n) {
 
 function resultsFailCount(n) {
   return function () {
-    assert.equal(this.tests.data[0].length, n);
+    assert.equal(this.tests.data.fail.length, n);
   };
 }
 
 function resultsSuccessCount(n) {
   return function () {
-    assert.equal(this.tests.data[1].length, n);
+    assert.equal(this.tests.data.success.length, n);
   };
 }
 

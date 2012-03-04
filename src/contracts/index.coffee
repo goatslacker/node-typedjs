@@ -50,7 +50,7 @@ class Contracts
     catch err
       throw err if err.message is errMessage
 
-    @data[0].length is 0
+    @data.fail.length is 0
 
 
 cloneObject = (code) ->

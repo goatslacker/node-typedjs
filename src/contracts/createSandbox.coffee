@@ -3,22 +3,19 @@ typedjs_parser = '../../packages/TypedJS/typedjs_parser.js'
 
 class TypedJS
   constructor: (signatures = {}) ->
-    @data = [[], []]
+    @data =
+      success: []
+      fail: []
     @signatures = signatures
 
   typedjs: require '../../packages/TypedJS/typed.js'
   util: require 'util'
 
   fail: (name) ->
-    fail = @data[0]
-    if fail.indexOf(name) is -1
-      fail.push name
+    @data.fail.push name if @data.fail.indexOf(name) is -1
 
   success: (name) ->
-    fail = @data[0]
-    success = @data[1]
-    if fail.indexOf(name) is -1 and success.indexOf(name) is -1
-      success.push name
+    @data.success.push name if @data.fail.indexOf(name) is -1 and @data.success.indexOf(name) is -1
 
   # defines our type checking function
   args: (name, args) ->

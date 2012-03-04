@@ -3,8 +3,12 @@ class Tests
 
   data: null
 
-  run: ->
-    throw new Error 'Run method not defined.'
+  run: (data) ->
+    @data =
+      fail: data[0]
+      success: data[1]
+
+    @data.fail.length is 0
 
 
 module.exports = Tests

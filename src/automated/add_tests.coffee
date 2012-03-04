@@ -11,8 +11,7 @@ class AddTests extends Tests
     @tests.push @typedjs.addTest(signature, func)
 
   run: ->
-    @data = @typedjs.go @tests
-    @data[0].length is 0
+    super @typedjs.go @tests
 
   clear: ->
     @tests = []
