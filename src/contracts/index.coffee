@@ -1,4 +1,3 @@
-fs = require 'fs'
 vm = require 'vm'
 
 instrument = require './instrument'
