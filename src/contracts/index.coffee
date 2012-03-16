@@ -22,22 +22,24 @@ class Contracts
     @code = code
     @data = null
 
+
   getContext: (sandbox, signatures) ->
     { @instrumentedCode, @signatures } = instrument @code
     context = createSandbox signatures or @signatures
-
-    script = vm.createScript @instrumentedCode
     context = mixInto context, sandbox
-    script.runInContext context
 
     @data = context._$TypedJS.data
 
     context
 
+
   run: (runner, sandbox = {}) ->
     context = @getContext sandbox
 
     return false if Object.keys(@signatures).length is 0
+
+    script = vm.createScript @instrumentedCode
+    script.runInContext context
 
     try
       switch typeof runner
