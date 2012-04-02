@@ -1,0 +1,181 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Node-typedjs</title>
+  <meta name="description" content="Type Signatures in your JavaScript">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Node-typedjs</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">Type Signatures in your JavaScript</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/goatslacker/node-typedjs/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/goatslacker/node-typedjs/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/goatslacker/node-typedjs" class="code">fork Node-typedjs on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <p>This is the <a href="http://typedjs.com">TypedJS</a> module for node.js</p>
+
+<p>TypedJS lets you annotate your JavaScript functions with Haskell-like type signatures and then runs a set of automated tests against those functions.</p>
+
+<p>For more information visit the <a href="https://github.com/Proxino/TypedJS">TypedJS GitHub repo</a></p>
+
+<h2>Install</h2>
+
+<p>In your project</p>
+
+<pre><code>npm install typedjs
+</code></pre>
+
+<p>Globally to check all your projects</p>
+
+<pre><code>npm install typedjs -g
+</code></pre>
+
+<h2>How to</h2>
+
+<h3>Add individual tests</h3>
+
+<p>You may add individual functions to run the automated tests on.</p>
+
+<pre><code>  var typedjs = require('typedjs');
+
+  var tests = typedjs.createTests();
+
+  tests.addTest('foo :: Number -&gt; Number -&gt; Number', function foo(a, b) {
+    return a + b;
+  });
+
+  tests.run(); // Boolean. true if tests passed, else false.
+  tests.data; // contains information on which functions passed and failed.
+</code></pre>
+
+<h3>Test a file</h3>
+
+<pre><code>var typedjs = require('typedjs');
+var fs = require('fs');
+
+// By passing the contents of a file as a String into createTests
+// you'll add the automated tests to all the global functions in the code.
+var tests = typedjs.createTests(fs.readFileSync('myfile.js').toString());
+tests.run();
+</code></pre>
+
+<h3>Dealing with closures</h3>
+
+<p>If you're testing a file the functions must be global otherwise TypedJS doesn't run
+the automated tests on them.</p>
+
+<p>Fortunately this module lets you deal with those closures under one condition, the
+functions may not call other functions.</p>
+
+<pre><code>var typedjs = require('typedjs');
+var fs = require('fs');
+
+var code = fs.readFileSync('myfile.js').toString();
+
+// the second parameter tells node-typedjs to extract all functions within
+// that have type signatures attached to them
+var tests = typedjs.createTests(code, true);
+tests.run();
+</code></pre>
+
+<h3>Contracts</h3>
+
+<p>Although the automated tests are great, coupling typedjs with your
+unit tests to make sure the types are enforced at runtime is a great way
+to spot new bugs and improve code quality.</p>
+
+<pre><code>var typedjs = require('typedjs');
+var code = 'function concat(a, b) { return a + b; } //+ concat :: String -&gt; String -&gt; String';
+
+var tests = typedjs.enforce(code);
+
+tests.run(function (context) {
+  context.concat(5, 2); // will fail
+  context.concat('foo', 'bar'); // will pass
+});
+
+// you can also run it as a String
+tests.run('concat("hello", "world")');
+</code></pre>
+
+<h2>API</h2>
+
+<p>Automated tests are created by calling <code>createTests</code></p>
+
+<p>Contracts are created by calling <code>enforce</code></p>
+
+<h3>createTests(code, extract)</h3>
+
+<ul>
+<li>code - {String} optional piece of code to run automated tests against</li>
+<li>extract - {Boolean} if true node-typedjs will extract all functions and run them individually</li>
+</ul><h3>enforce(code)</h3>
+
+<ul>
+<li>code - {String} enforce a contract on some code</li>
+</ul><h2>Executable</h2>
+
+<p>Comes with an executable</p>
+
+<pre><code>$ typedjs [option] [file1] [file2] [file3]
+</code></pre>
+
+<p>Options available</p>
+
+<ul>
+<li>-e | --extract - Tells typedjs to extract functions and run them individually</li>
+</ul><h2>Credits</h2>
+
+<ul>
+<li>TypedJS - <a href="http://ethanfast.com/">Ethan Fast</a>
+</li>
+<li>node-typedjs - <a href="http://www.goatslacker.com">Josh Perez</a>
+</li>
+</ul><h2>License</h2>
+
+<p><a href="http://josh.mit-license.org">MIT-LICENSE</a></p>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/goatslacker" class="avatar"><img src="https://secure.gravatar.com/avatar/8e830af2c64e2a4bbda590f2d7b95053?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" width="48" height="48"/></a> <a href="https://github.com/goatslacker">goatslacker</a> maintains <a href="https://github.com/goatslacker/node-typedjs">Node-typedjs</a></p>
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="http://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/goatslacker/node-typedjs/tarball/master" class="tar">tar</a><a href="https://github.com/goatslacker/node-typedjs/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
