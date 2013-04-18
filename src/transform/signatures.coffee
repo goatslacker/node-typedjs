@@ -1,4 +1,4 @@
-typedjs_parser = require '../../packages/TypedJS/typedjs_parser.js'
+typedjs_parser = require 'parser'
 
 # underscore?
 last = (coll) -> coll[coll.length - 1]
