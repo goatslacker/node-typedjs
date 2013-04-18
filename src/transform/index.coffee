@@ -1,4 +1,4 @@
-Parser = require '../parser/'
+Parser = require './parser'
 util = require 'util'
 
 getReturnValue = (code, ret) ->
