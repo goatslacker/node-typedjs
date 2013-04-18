@@ -24,13 +24,16 @@ class Contracts
 
 
   getContext: (sandbox, signatures) ->
-    { @instrumentedCode, @signatures } = instrument @code
+    @transform()
     context = createSandbox signatures or @signatures
     context = mixInto context, sandbox
 
     @data = context._$TypedJS.data
 
     context
+
+  transform: () ->
+    { @instrumentedCode, @signatures } = instrument @code
 
 
   run: (runner, sandbox = {}) ->
