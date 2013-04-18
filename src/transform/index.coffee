@@ -1,44 +1,33 @@
-Parser = require './parser'
+parser = require './parser'
 util = require 'util'
 
 getReturnValue = (code, ret) ->
-  valueCharPosStart = ret.range[0] + 7
-  valueCharPosEnd = ret.range[1]
-  if valueCharPosStart < valueCharPosEnd then code.slice(valueCharPosStart, valueCharPosEnd) else undefined
+  value_char_pos_start = ret.range[0] + 7
+  value_char_pos_end = ret.range[1]
+  if value_char_pos_start < value_char_pos_end
+  then code.slice(value_char_pos_start, value_char_pos_end)
+  else undefined
 
 
 wrap = (types, args) ->
-  fTypes = util.inspect types, null, false
-  "_tjs_(#{fTypes}, #{args});"
+  formatted_types = util.inspect types, null, false
+  "_tjs_(#{formatted_types}, #{args});"
 
 
-# XXX rather than code.splicing how about we do code transforming via an AST and then compile using escodegen.
-# the cons would be that you lose any special code style..
+# has side effects, mutates code
+# ugly
 instrument = (code) ->
-  parser = new Parser code
+  (parser code).reverse().map (fn) ->
+    sig = fn.signature
 
-  signatures = parser.getSignatures()
-  functionList = parser.getFunctions()
-
-  # Insert the instrumentation code from the last entry.
-  # This is to ensure that the range for each entry remains valid)
-  # (it won't shift due to some new inserting string before the range).
-  functionList.reverse().forEach (fn) ->
-    sig = signatures[fn.name]
-
-    returnValue = getReturnValue code, fn.return
-    code = code.slice(0, fn.return.range[0]) + "return #{wrap [sig.return], returnValue}" + code.slice(fn.return.range[1] + 1, code.length)
+    return_value = getReturnValue code, fn.return
+    code = code.slice(0, fn.return.range[0]) + "return #{wrap [sig.return], return_value}" + code.slice(fn.return.range[1] + 1, code.length)
 
     signature = wrap sig.args, 'arguments'
-    posStart = fn.blockStart + 1
-    code = "#{code.slice(0, posStart)}\n#{signature}#{code.slice(posStart, code.length)}"
+    pos_start = fn.blockStart + 1
+    code = "#{code.slice(0, pos_start)}\n#{signature}#{code.slice(pos_start, code.length)}"
 
-
-  result =
-    instrumentedCode: code
-    signatures: signatures
-
-  result
+  code
 
 
 # I need to write a badass _tjs_
@@ -51,6 +40,5 @@ _tjs_ = (types, args) ->
 
 
 module.exports = (code) ->
-  { instrumentedCode } = instrument code
-  "var _tjs_ = #{_tjs_.toString()}\n#{instrumentedCode}"
+  "var _tjs_ = #{_tjs_.toString()};\n#{instrument code}"
 
