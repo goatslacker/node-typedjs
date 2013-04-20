@@ -27,13 +27,4 @@ instrument = (code) ->
 
   code
 
-# I need to write a badass _tjs_
-# extract away util.inspect and typedjs, do our own typechecking here
-_tjs_ = (types, args) ->
-  throw new TypeError 'Argument length mismatch' unless types.length == args.length
-  types.forEach (type, i) ->
-    throw new TypeError "#{name} Expected #{util.inspect(type)} but received #{util.inspect(args[i])}" unless typedjs.check_type args[i], type
-  args[0]
-
-module.exports = (code) ->
-  "var _tjs_ = #{_tjs_.toString()};\n#{instrument code}"
+module.exports = instrument

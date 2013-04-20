@@ -17,11 +17,6 @@ parseSignature = (comment) ->
 getTypeSignature = (comment) ->
   Maybe comment.value[0] is '+', (papply parseSignature, comment)
 
-# Extracts the type signatures from the comments
-# if they are present.
-#
-# returns an Object containing the type signatures
-# the type of arguments and the type of the return value.
 parseSignatures = (comments) -> listToObj (map getTypeSignature, comments)
 
 module.exports = parseSignatures

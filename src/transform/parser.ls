@@ -1,9 +1,9 @@
 esprima = require 'esprima'
 parseSignatures = require './signatures'
 
-isReturnStatement = (node) -> node.type == 'ReturnStatement'
+is-return-statement = (node) -> node.type == 'ReturnStatement'
 
-findReturn = (nodes) -> last (nodes.filter isReturnStatement)
+find-return = (nodes) -> last (nodes.filter is-return-statement)
 
 compact = (coll) -> coll.filter (item) -> item !~= null
 
@@ -18,22 +18,23 @@ parseAssignmentExpression = (node, signatures) ->
   parseFunctionDeclaration node.right, signatures
 
 parseFunctionDeclaration = (node, signatures) ->
-  return unless signatures[node.id.name]
-  {
-    name: node.id.name
-    params: node.params
-    range: node.range
-    blockStart: node.body.range[0]
-    end: node.body.range[1]
-    return: findReturn node.body.body
-    signature: signatures[node.id.name]
-  }
+  if signatures[node.id.name]
+  then { name: node.id.name
+  params: node.params
+  range: node.range
+  blockStart: node.body.range[0]
+  end: node.body.range[1]
+  return: find-return node.body.body
+  signature: signatures[node.id.name] }
+  else void
 
 traverse = (object, visitor) ->
-  walkTree = (key) ->
+  walk-tree = (key) ->
     child = object[key]
-    traverse(child, visitor) if typeof child is 'object' and child isnt null
-  compact [visitor object] ++ concatMap walkTree, (keys object)
+    if typeof child is 'object' and child isnt null
+    then traverse child, visitor
+    else void
+  compact [visitor object] ++ concat-map walk-tree, (keys object)
 
 module.exports = (code) ->
   tree = esprima.parse code, { comment: true, loc: true, range: true }
@@ -43,4 +44,4 @@ module.exports = (code) ->
     | 'FunctionDeclaration' => parseFunctionDeclaration node, signatures
     | 'AssignmentExpression' => parseAssignmentExpression node, signatures
     | 'VariableDeclarator' => parseVariableDeclarator node, signatures
-    | otherwise return
+    | otherwise void
