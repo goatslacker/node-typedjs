@@ -1,21 +1,25 @@
 parser = import 'parser.akira'
 fs = require: 'fs'
 
--- XXX the params shouldn't need to be capitalized. they should come in like that already
-add-signature = fn [sig] {
-  cond
-    sig isnt Vector ? add-signature: [sig]
-    else ? join: ', ' (map: capitalize sig)
-}
+comma = ', '
 
-get-args = -> (map: (.name) &0 | join: ', ')
+get-args = -> (map: (.name) &0 | join: comma)
+
+convert-signature = fn [x] {
+  cond
+    x is Map ? if x.or
+      then stringify: 'tg.Or(' (join: comma x.or) ')'
+      else stringify: 'tg.Maybe(' (x !! 'maybe') ')'
+    x is Vector ? map: convert-signature x | join: comma
+    else ? x
+}
 
 get = fn [code start end] {
   code.substr: start (end - start)
 }
 
 build-type-check = fn [args val] {
-  stringify: '_tg(' args ', ' val ');'
+  stringify: 'tg(' args comma val ');'
 }
 
 as-array = -> (stringify: '[' &0 ']')
@@ -26,7 +30,7 @@ get-return-value = fn [code arg-range] {
 }
 
 add-return-value = fn [code node] {
-  type-params = add-signature: node.signature.ret
+  type-params = convert-signature: node.signature.ret
   type-values = if node.ret.argument
     then get-return-value: code node.ret.argument.range
     else 'undefined'
@@ -36,24 +40,31 @@ add-return-value = fn [code node] {
   stringify: 'return ' return-type-guard
 }
 
+get-return-end = fn [ret] {
+  value = if ret.argument
+    then ret.argument.range !! 1
+    else ret.range !! 1
+  value + 1
+}
+
+get-tg-arguments = fn [node] {
+  type-params = convert-signature: node.signature.args | as-array
+  type-values = get-args: node.params | as-array
+  build-type-check: type-params type-values
+}
+
 instrument-function = fn [code node] {
   block-start = node.block-start + 1
-  return-end = 1 + (if node.ret.argument
-    then (node.ret.argument.range !! 1)
-    else node.ret.range !! 1)
-
   code-until-function = get: code 0 block-start
 
-  type-params = add-signature: node.signature.args | as-array
-  type-values = get-args: node.params | as-array
-
-  tg-arguments = build-type-check: type-params type-values
+  tg-arguments = get-tg-arguments: node
 
   return-start = node.ret.range !! 0
   f-body = get: code block-start return-start
 
   tg-return = add-return-value: code node
 
+  return-end = get-return-end: node.ret
   function-end = get: code return-end (node.end + 1)
 
   stringify: code-until-function tg-arguments f-body tg-return function-end
@@ -65,6 +76,6 @@ reducer = fn [code node] {
 
 transform = -> (foldl: reducer (parser: &0 | reverse) &0)
 
-get-tg = -> (fs.read-file-sync: 'node_modules/tg.js')
+get-tg = -> (fs.read-file-sync: 'node_modules/tg.js' | String)
 
-module.exports = -> (stringify: 'var _tg = ' (get-tg!) (transform: &0))
+module.exports = -> (stringify: (get-tg!) ';' (transform: &0))

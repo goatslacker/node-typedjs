@@ -21,17 +21,15 @@ parse-assignment-expression = fn [node signatures] {
 }
 
 parse-function-declaration = fn [node signatures] {
-  if signatures !! node.id.name
-    then {
-      @name node.id.name
+  maybe
+    signature <- signatures !! node.id.name
+    { @name node.id.name
       @params node.params
       @range node.range
       @blockStart node.body.range.1
       @end node.body.range.2
       @ret (find-return: node.body.body)
-      @signature signatures !! node.id.name
-    }
-    else none
+      @signature signature }
 }
 
 traverse = fn [object visitor] {
@@ -55,7 +53,9 @@ get-parse-function = match {
 
 --parse-node-type :: Map Vector -> Maybe Map
 parse-node-type = fn [node signatures] {
-  maybe: -> (get-parse-function: node.type) (fn [x] x: node signatures)
+  maybe
+    parser <- (get-parse-function: node.type)
+    parser: node signatures
 }
 
 export fn [code] {

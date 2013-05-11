@@ -1,21 +1,25 @@
 typedjs-parser = require: 'parser'
 
+gen-signature = fn [signature comment] {
+  { @args } = signature
+  [ signature.func
+    { @ret (last: args)
+      @args (init: args)
+      @value comment } ]
+}
+
 parse-signature = fn [comment] {
   signature = typedjs-parser.parse: '//{{comment.value}}' | JSON.parse
-  If: signature.func -> ([
-    signature.func
-    { @ret (last: signature.args)
-    @args (init: signature.args)
-    @value comment }])
+  If: signature.func -> (gen-signature: signature comment)
 }
 
 get-type-signature = fn [comment] {
   get-signature = bind: parse-signature comment
-  If: (comment.value.1 is '+') get-signature
+  If: (comment.value.1 is '+') -> (parse-signature: comment)
 }
 
 parse-signatures = fn [comments] {
-  to-map: get-type-signature comments
+  map: get-type-signature comments | compact | to-map: id
 }
 
 export parse-signatures
