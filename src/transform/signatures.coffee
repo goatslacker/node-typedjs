@@ -12,21 +12,17 @@ toObject = (coll, fn) ->
       obj[key] = value
   obj
 
-comp = (fn, arg) -> () -> fn(arg)
-
-kill = (cond, ret) -> if cond then ret() else null
-
 parseSignature = (comment) ->
   signature = JSON.parse typedjs_parser.parse("//#{comment.value}")
-  kill signature.func, -> [
-    signature.func
-    { return: last signature.args
+  value = [ signature.func
+    { ret: last signature.args
     args: init signature.args
-    value: comment }
-  ]
+    value: comment } ]
+
+  value if signature.func
 
 getTypeSignature = (comment) ->
-  kill comment.value[0] is '+', (comp parseSignature, comment)
+  (parseSignature comment) if comment.value[0] is '+'
 
 parseSignatures = (comments) -> toObject comments, getTypeSignature
 

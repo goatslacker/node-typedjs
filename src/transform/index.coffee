@@ -1,32 +1,64 @@
 parser = require './parser'
-util = require 'util'
 
-getReturnValue = (code, ret) ->
-  value_char_pos_start = ret.range[0] + 7
-  value_char_pos_end = ret.range[1]
-  if value_char_pos_start < value_char_pos_end
-  then code.slice(value_char_pos_start, value_char_pos_end)
-  else undefined
+comma = ', '
+
+capitalize = (x) -> x.charAt(0).toUpperCase() + x.slice(1)
+
+getArgs = (params) -> (params.map (x) -> x.name).join comma
+
+addSignature = (sig) ->
+  sig = if (Array.isArray sig) then sig else [sig]
+  (sig.map capitalize).join comma
+
+get = (code, start, end) -> code.substr start, end - start
+
+concat = (a, b) -> a.concat b
+
+stringify = (args...) -> args.reduce concat
 
 
-wrap = (types, args) ->
-  formatted_types = util.inspect types, null, false
-  "_tjs_(#{formatted_types}, #{args});"
+getReturnValue = (code, argRange) ->
+  [argStart, argEnd] = argRange
+  get code, argStart, (argEnd + 1)
 
+addReturnValue = (code, x, blockStart, blockEnd) ->
+  retStart = x.ret.range[0]
 
-# has side effects, mutates code
-# ugly
+  typeValues = if x.ret.argument then getReturnValue(code, x.ret.argument.range) else 'undefined'
+
+  stringify(
+    get(code, blockStart, retStart),
+    'return ',
+    buildTypeCheck(
+      addSignature(x.signature.ret),
+      typeValues
+    )
+  )
+
+buildTypeCheck = (args, val) -> stringify '_tg(', args, comma, val, ');'
+
+asArray = (x) -> stringify '[', x, ']'
+
+instrumentFunction = (code, start, x) ->
+  blockStart = x.blockStart
+  blockEnd = x.end
+  retEnd = 1 + if x.ret.argument then x.ret.argument.range[1] else x.ret.range[1]
+
+  inc = blockStart + 1
+
+  get(code, start, blockStart) +
+    buildTypeCheck(
+      asArray(addSignature(x.signature.args)),
+      asArray(getArgs(x.params))
+    ) +
+    addReturnValue(code, x, inc, blockEnd) +
+    get(code, retEnd + 1, blockEnd + 1)
+
+reducer = (code, node) ->
+  instrumentFunction(code, 0, node) + code.slice(node.end + 1)
+
 instrument = (code) ->
-  (parser code).reverse().map (fn) ->
-    sig = fn.signature
-
-    return_value = getReturnValue code, fn.return
-    code = code.slice(0, fn.return.range[0]) + "return #{wrap [sig.return], return_value}" + code.slice(fn.return.range[1] + 1, code.length)
-
-    signature = wrap sig.args, 'arguments'
-    pos_start = fn.blockStart + 1
-    code = "#{code.slice(0, pos_start)}\n#{signature}#{code.slice(pos_start, code.length)}"
-
-  code
+  info = parser code
+  [code].concat(info.reverse()).reduce reducer
 
 module.exports = instrument
