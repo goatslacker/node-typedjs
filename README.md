@@ -2,115 +2,53 @@
 
 [![Build Status](https://secure.travis-ci.org/goatslacker/node-typedjs.png)](http://travis-ci.org/goatslacker/node-typedjs)
 
-This is the [TypedJS](http://typedjs.com) module for node.js
-
-TypedJS lets you annotate your JavaScript functions with Haskell-like type signatures and then runs a set of automated tests against those functions.
-
-For more information visit the [TypedJS GitHub repo](https://github.com/Proxino/TypedJS)
+TypedJS lets you annotate your JavaScript functions with Haskell-like type signatures and then transforms your code to perform type checking at run time.
 
 ## Install
 
-In your project
-
     npm install typedjs
 
-Globally to check all your projects
+## Usage
 
-    npm install typedjs -g
 
-## How to
+### Transform your code
 
-### Add individual tests
+#### In your project
 
-You may add individual functions to run the automated tests on.
+    var typedjs = require('typedjs')
+    var fs = require('fs')
+    var code = fs.readFileSync('file_name.js')
+    var transformedCode = typedjs.transform(code)
 
-      var typedjs = require('typedjs');
+#### From the CLI
 
-      var tests = typedjs.createTests();
+    typedjs file_name.js > output_file.js
 
-      tests.addTest('foo :: Number -> Number -> Number', function foo(a, b) {
-        return a + b;
-      });
 
-      tests.run(); // Boolean. true if tests passed, else false.
-      tests.data; // contains information on which functions passed and failed.
+### Quickcheck your code
 
-### Test a file
+    var typedjs = require('typedjs')
 
-    var typedjs = require('typedjs');
-    var fs = require('fs');
+    function addOne(n) {
+      return n + 1
+    }
 
-    // By passing the contents of a file as a String into createTests
-    // you'll add the automated tests to all the global functions in the code.
-    var tests = typedjs.createTests(fs.readFileSync('myfile.js').toString());
-    tests.run();
+    typedjs.quickcheck('Number -> Number', addOne)
 
-### Dealing with closures
 
-If you're testing a file the functions must be global otherwise TypedJS doesn't run
-the automated tests on them.
+### Using require
 
-Fortunately this module lets you deal with those closures under one condition, the
-functions may not call other functions.
+You can use `typedjs.require()` in your node programs to transform a file
+and require it.
 
-    var typedjs = require('typedjs');
-    var fs = require('fs');
+This is useful for your unit tests or your dev environments.
 
-    var code = fs.readFileSync('myfile.js').toString();
+    var typedjs = require('typedjs')
+    var someModule = typedjs.require('someModule')
 
-    // the second parameter tells node-typedjs to extract all functions within
-    // that have type signatures attached to them
-    var tests = typedjs.createTests(code, true);
-    tests.run();
-
-### Contracts
-
-Although the automated tests are great, coupling typedjs with your
-unit tests to make sure the types are enforced at runtime is a great way
-to spot new bugs and improve code quality.
-
-    var typedjs = require('typedjs');
-    var code = 'function concat(a, b) { return a + b; } //+ concat :: String -> String -> String';
-
-    var tests = typedjs.enforce(code);
-
-    tests.run(function (context) {
-      context.concat(5, 2); // will fail
-      context.concat('foo', 'bar'); // will pass
-    });
-
-    // you can also run it as a String
-    tests.run('concat("hello", "world")');
-
-## API
-
-Automated tests are created by calling `createTests`
-
-Contracts are created by calling `enforce`
-
-### createTests(code, extract)
-
-* code - {String} optional piece of code to run automated tests against
-* extract - {Boolean} if true node-typedjs will extract all functions and run them individually
-
-### enforce(code)
-
-* code - {String} enforce a contract on some code
-
-## Executable
-
-Comes with an executable
-
-    $ typedjs [option] [file1] [file2] [file3]
-
-Options available
-
-* -e | --extract - Tells typedjs to extract functions and run them individually
-
-## Credits
-
-* TypedJS - [Ethan Fast](http://ethanfast.com/)
-* node-typedjs - [Josh Perez](http://www.goatslacker.com)
+    // you can then use `someModule` just as you would if you would've imported
+    // it using Node's `require`
+    someModule.aFunction()
 
 ## License
 
