@@ -12,6 +12,9 @@
   "bin": {
     "typedjs": "./bin/typedjs"
   },
+  "scripts": {
+    "test": "testla test"
+  },
   "dependencies": {
     "esprima": "*",
     "dune": "*",
