@@ -15,9 +15,9 @@
   "scripts": {
     "test": "testla test"
   },
-  "files": [
-    "node_modules/parser.js",
-    "node_modules/fn.js"
+  "bundleDependencies": [
+    "parser.js",
+    "fn.js"
   ],
   "dependencies": {
     "esprima": "*",
