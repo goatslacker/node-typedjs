@@ -54,6 +54,24 @@ module.exports = function (assert, xform, filter, fn) {
       returnType(myfn, 'String')
     },
 
+    'type transforms': function () {
+      var ast = xform('type-transforms')
+      var a = findFunction('a', ast)
+
+      var nodes = getReturns(a)
+
+      fn.zipWith(
+        assert.equal,
+        fn.concatMap(function (ret) {
+          return fn.map(
+            fn.property('name'),
+            ret.argument.arguments[0].arguments[0].elements
+          )
+        }, nodes),
+        ['String', 'Number']
+      )
+    },
+
     _xform: function () {
       var f = ast.body[0]
       var fbody = f.body.body
