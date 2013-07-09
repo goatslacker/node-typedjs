@@ -1,4 +1,4 @@
-module.exports = function (assert, xform, filter, fn) {
+module.exports = function (assert, xform, filter, fu) {
 //  var code = [
 //    '//+ num :: Number -> Number',
 //    'function num(n) {',
@@ -9,21 +9,21 @@ module.exports = function (assert, xform, filter, fn) {
 
 
   function findFunction(name, program) {
-    return fn.head(filter(program, function (node) {
+    return fu.head(filter(program, function (node) {
       return node.type == 'FunctionDeclaration' && node.id.name == name
     }))
   }
 
   function assertTGArgs(f) {
-    var node = fn.head(filter(f.body, function (node) {
+    var node = fu.head(filter(f.body, function (node) {
       return node.type == 'CallExpression' && node.callee.name == 'tg'
     }))
 
     assert.ok(!!node, 'TG arguments exists for ' + f.id.name)
 
-    return fn.zipWith(function (a, b) {
+    return fu.zipWith(function (a, b) {
       assert.deepEqual(a, b)
-    }, fn.head(node.arguments.slice(1)).elements, f.params)
+    }, fu.head(node.arguments.slice(1)).elements, f.params)
   }
 
   function getReturns(f) {
@@ -39,7 +39,7 @@ module.exports = function (assert, xform, filter, fn) {
   }
 
   function returnType(f, t) {
-    fn.map(function (ret) {
+    fu.map(function (ret) {
       assert.equal(ret.argument.arguments[0].name, t)
     }, getReturns(f))
   }
@@ -47,11 +47,11 @@ module.exports = function (assert, xform, filter, fn) {
   return {
     'multiple returns': function () {
       var ast = xform('multiple-returns')
-      var myfn = findFunction('hello', ast)
+      var myfu = findFunction('hello', ast)
 
-      assertTGArgs(myfn)
-      returnCount(myfn, 2)
-      returnType(myfn, 'String')
+      assertTGArgs(myfu)
+      returnCount(myfu, 2)
+      returnType(myfu, 'String')
     },
 
     'type transforms': function () {
@@ -60,11 +60,11 @@ module.exports = function (assert, xform, filter, fn) {
 
       var nodes = getReturns(a)
 
-      fn.zipWith(
+      fu.zipWith(
         assert.equal,
-        fn.concatMap(function (ret) {
-          return fn.map(
-            fn.property('name'),
+        fu.concatMap(function (ret) {
+          return fu.map(
+            fu.property('name'),
             ret.argument.arguments[0].arguments[0].elements
           )
         }, nodes),

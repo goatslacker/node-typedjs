@@ -1,4 +1,4 @@
-module.exports = function (typedjs, assert, fn) {
+module.exports = function (typedjs, assert, fu) {
   var none = function (x) { return undefined }
 
   var qc = function (test) {
@@ -14,7 +14,7 @@ module.exports = function (typedjs, assert, fn) {
 
   function test(sig) {
     return function () {
-      ok(sig, fn.id)
+      ok(sig, fu.id)
       fails(sig, none)
     }
   }

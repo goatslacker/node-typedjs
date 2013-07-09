@@ -6,7 +6,7 @@ var typedjs = require('../')
 
 module.exports = {
   typedjs: typedjs,
-  fn: require('fn'),
+  fu: require('fu'),
   filter: function (nodes, f) {
     return traverse(nodes, function (node) {
       return f(node) ? node : null
