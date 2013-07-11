@@ -16,10 +16,10 @@
     "test": "testla test"
   },
   "bundleDependencies": [
-    "parser.js",
-    "fn.js"
+    "parser.js"
   ],
   "dependencies": {
+    "fu": "*",
     "esprima": "*",
     "dune": "*",
     "tg": "*"
