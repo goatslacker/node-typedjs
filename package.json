@@ -19,15 +19,12 @@
     "parser.js"
   ],
   "dependencies": {
-    "fu": "*",
-    "esprima": "*",
-    "dune": "*",
-    "tg": "*"
+    "fu": "~0.1.0",
+    "esprima": "~1.0.4",
+    "dune": "~0.1.0",
+    "tg": "~0.0.6"
   },
   "devDependencies": {
-    "testla": "*"
-  },
-  "engines": {
-    "node": "*"
+    "testla": "~0.1.0"
   }
 }
